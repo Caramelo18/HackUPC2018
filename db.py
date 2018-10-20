@@ -76,4 +76,4 @@ def erase_commute(userId):
         Key={
             'userId': userId
         }
-)
+    )
