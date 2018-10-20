@@ -23,6 +23,10 @@ def hello(event, context):
 
         if "start" in message:
             start(chat_id, first_name)
+        elif "setStart" in message:
+            setStart(chat_id, "Origin")
+        elif "setDestination" in message:
+            setDestination(chat_id, "Destination")
         else:
             data = {"text": response.encode("utf8"), "chat_id": chat_id}
             requests.post(url, data)
@@ -35,7 +39,19 @@ def hello(event, context):
 
 
 def start(chat_id, first_name):
-    response = "Hello {}! \n I am CommuBot and I am here to help you with your commute. To list the stations type /list. \n To set your starting point type /setStart <name>. \n To set your destination type /setDestination <name>".format(first_name)
+    response = " Hello {}! \n I am CommuBot and I am here to help you with your commute. To list the stations type /list. \n\n To set your starting point type /setStart <name>. \n\n To set your destination type /setDestination <name>".format(first_name)
     data = {"text": response.encode("utf8"), "chat_id": chat_id}
 
+    requests.post(url, data)
+
+def setStart(passenger_id, origin):
+    response = "Your origin has been recorded! Please set your destination using /setDestination <name>"
+    data = {"text": response.encode("utf8"), "chat_id": passenger_id}
+
+    requests.post(url, data)
+
+def setDestination(passenger_id, destination):
+    response = "You are set! You can list your defined locations using /list!"
+
+    data = {"text": response.encode("utf8"), "chat_id": passenger_id}
     requests.post(url, data)
