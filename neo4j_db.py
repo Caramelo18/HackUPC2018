@@ -19,3 +19,8 @@ def get_error_list(path):
             error_list.append(info)
     
     return error_list
+
+def insert_error(origin, destination, message):
+    graph = Graph(host=os.environ['NEO4J_URL'], port=os.environ['NEO4J_PORT'], user=os.environ['NEO4J_USERNAME'], password=os.environ['NEO4J_TOKEN'], secure=True)
+    query = 'MATCH (ms:Station{{name:\'{}\'}}),(cs:Station{{name:\'{}\'}}), (ms)-[e]-(cs) SET e.error=\'{}\''.format(origin, destination, message)
+    graph.run(query)
