@@ -23,17 +23,27 @@ def hello(event, context):
 
         response = "Please /start, {}".format(first_name)
 
-        if "start" in message:
+        if message.startswith("/start"):
             start(chat_id, first_name)
-        elif "setOrigin" in message:
+        elif message.startswith("/setOrigin"):
             origin = message.split("/setOrigin ", 1)[1]
             set_origin(chat_id, origin)
-        elif "setDestination" in message:
+        elif message.startswith("/setDestination"):
             destination = message.split("/setDestination ", 1)[1]
             set_destination(chat_id, destination)
-        elif "list" in message:
+        elif message.startswith("/commute"):
             get_user_list(chat_id)
-        elif "status" in message:
+        elif message.startswith("/listall"):
+            list_all_stations(chat_id)
+        elif message.startswith("/listissues"):
+            list_issues(chat_id)
+        elif message.startswith("/list"):
+            if message == "/list":
+                list_lines(chat_id)
+            else:
+                line = message.split("/list ", 1)[1]
+                list_stations_by_line(chat_id, line)
+        elif message.startswith("/status"):
             if message == "/status":
                 get_status_by_id(chat_id)
                 return {"statusCode": 200}
@@ -44,7 +54,6 @@ def hello(event, context):
         else:
             data = {"text": response.encode("utf8"), "chat_id": chat_id}
             requests.post(url, data)
-
 
     except Exception as e:
         print(e)
@@ -79,7 +88,7 @@ def set_origin(passenger_id, origin):
     if not neo4j_db.is_station(origin):
         response = "The station {} does not exist. Please insert a valid one.".format(origin)
     elif origin is not None and destination is not None:
-        response = "You are set! You can list your defined locations using /list!"
+        response = "You are set! You can list your defined locations using /commute!"
     elif destination is None:
         response = "Your origin has been recorded! Please set your destination using /setDestination <name>"
 
@@ -93,7 +102,7 @@ def set_destination(passenger_id, destination):
     if not neo4j_db.is_station(destination):
         response = "The station {} does not exist. Please insert a valid one.".format(destination)
     elif origin is not None and destination is not None:
-        response = "You are set! You can list your defined locations using /list!"
+        response = "You are set! You can list your defined locations using /commute!"
     elif origin is None:
         response = "Your destination has been recorded! Please set your origin using /setOrigin <name>"
 
@@ -177,5 +186,43 @@ def get_status(passenger_id, origin, destination):
         response += issue
 
 
+    data = {"text": response.encode("utf8"), "chat_id": passenger_id}
+    requests.post(url, data)
+
+def list_all_stations(passenger_id):
+    station_list = neo4j_db.list_stations()
+    station_list.sort()
+    response = 'List of every station in the network:\n' + '\n'.join(station_list)
+    data = {"text": response.encode("utf8"), "chat_id": passenger_id}
+    requests.post(url, data)
+
+def list_lines(passenger_id):
+    line_list = neo4j_db.list_lines()
+    line_list.sort()
+    response = 'List of lines in the network:\n' + '\n'.join(line_list) + '\nSend \'/list <line_name>\' to get the list of stations of a specific line.'
+    data = {"text": response.encode("utf8"), "chat_id": passenger_id}
+    requests.post(url, data)
+
+def list_stations_by_line(passenger_id, line):
+    station_list = neo4j_db.list_stations_by_line(line)
+    station_list.sort()
+    response = 'List of every station in the line {}:\n'.format(line) + '\n'.join(station_list)
+    data = {"text": response.encode("utf8"), "chat_id": passenger_id}
+    requests.post(url, data)
+
+def list_issues(passenger_id):
+    error_list = neo4j_db.list_issues()
+    
+    if len(error_list) == 0:
+        response = 'No issues in the network.'
+    else:
+        response = 'Unfortunately, the network is facing some issues right now.\n'
+        for problem in error_list:
+            origin = problem['origin']
+            destination = problem['destination']
+            message = problem['message']
+            issue = "There is an issue between {} and {}: {}\n".format(origin, destination, message)
+            response += issue
+    
     data = {"text": response.encode("utf8"), "chat_id": passenger_id}
     requests.post(url, data)
