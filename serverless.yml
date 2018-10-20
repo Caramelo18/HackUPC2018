@@ -67,11 +67,36 @@ functions:
                 cors: true
     update:
         handler: handler.update
-        events:
-            - http:
-                path: update
-                method: post
-                cors: true
+    retrieveUsers:
+        handler: handler.retrieve
+    sendAlert:
+        handler: handler.send_alert
+
+stepFunctions:
+  stateMachines:
+    stepfunc:
+      events:
+        - http:
+            path: update
+            method: post
+      definition:
+        Comment: "State Machine to inform users when a problem occurs"
+        StartAt: UpdateDB
+        States:
+          UpdateDB:
+              Type: Task
+              Resource: "arn:aws:lambda:eu-west-1:052565581783:function:commubot-dev-update"
+              Next: RetrieveUsers
+          RetrieveUsers:
+              Type: Task
+              Resource: "arn:aws:lambda:eu-west-1:052565581783:function:commubot-dev-retrieveUsers"
+              Next: SendAlert
+          SendAlert:
+              Type: Task
+              Resource: "arn:aws:lambda:eu-west-1:052565581783:function:commubot-dev-sendAlert"
+              End: true
+
+
 resources:
   Resources:
     NewResource:
@@ -132,3 +157,6 @@ resources:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
+
+plugins:
+  - serverless-step-functions

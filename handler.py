@@ -62,13 +62,85 @@ def hello(event, context):
 
 def update(event, context):
     try:
-        #data = json.loads(event["body"])
-        #message = str(data["message"]["text"])
+        origin = event["origin"]
+        destination = event["destination"]
+        type = event["type"]
+        message = None
+        if 'message' in event:
+            message = event["message"]
 
-        response = "Just an update"
+        if type == "add":
+            neo4j_db.insert_error(origin, destination, message)
+        elif type == "remove":
+            neo4j_db.clear_error(origin, destination)
+        else:
+            return {"statusCode": 200}
+    except Exception as e:
+        print(e)
 
-        data = {"text": response.encode("utf8"), "chat_id": 787004625} #TODO: change this
-        requests.post(url, data)
+    return {
+        "statusCode": 200,
+        "origin": origin,
+        "destination": destination,
+        "type": type,
+        "message": message
+    }
+
+def retrieve(event, context):
+    try:
+        origin = event["origin"]
+        destination = event["destination"]
+        type = event["type"]
+        message = None
+        if 'message' in event:
+            message = event["message"]
+
+        users = db.get_all_users()
+        users_list = []
+
+        for user in users:
+            u_origin = user['origin']
+            u_destination = user['destination']
+            if neo4j_db.is_contained(u_origin, u_destination, origin, destination):
+                users_list.append(user['userId'])
+
+    except Exception as e:
+        print(e)
+
+    return {
+        "statusCode": 200,
+        "origin": origin,
+        "destination": destination,
+        "type": type,
+        "message": message,
+        "users": users_list
+    }
+
+def send_alert(event, context):
+    try:
+        origin = event["origin"]
+        destination = event["destination"]
+        type = event["type"]
+        message = None
+        if 'message' in event:
+            message = event["message"]
+
+        users = event["users"]
+
+        response = ""
+
+        if type == "remove":
+            response += "I have some good news! The problem between {} and {} has been solved.".format(origin, destination)
+        elif type == "add":
+            response += "I am sorry to inform that there is an issue between {} and {} ".format(origin, destination)
+            if message is not None:
+                response += "({})".format(message)
+            response += "."
+
+        for user in users:
+            data = {"text": response.encode("utf8"), "chat_id": user}
+            requests.post(url, data)
+
 
     except Exception as e:
         print(e)
@@ -212,7 +284,7 @@ def list_stations_by_line(passenger_id, line):
 
 def list_issues(passenger_id):
     error_list = neo4j_db.list_issues()
-    
+
     if len(error_list) == 0:
         response = 'No issues in the network.'
     else:
@@ -223,7 +295,7 @@ def list_issues(passenger_id):
             message = problem['message']
             issue = "There is an issue between {} and {}: {}\n".format(origin, destination, message)
             response += issue
-    
+
     data = {"text": response.encode("utf8"), "chat_id": passenger_id}
     requests.post(url, data)
 
