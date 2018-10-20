@@ -19,6 +19,7 @@ bin/
 vendored/
 pip-selfcheck.json
 pyvenv.cfg
+__pycache__/
 
 # Serverless directories
 .serverless

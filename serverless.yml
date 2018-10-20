@@ -71,7 +71,7 @@ resources:
     NewResource:
         Type: AWS::DynamoDB::Table
         Properties:
-            TableName: PassengerTable
+            TableName: ${env:DYNAMODB_TABLE}
             AttributeDefinitions:
                 - AttributeName: userId
                   AttributeType: S

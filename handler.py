@@ -6,6 +6,7 @@ here = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(here, "./vendored"))
 
 import requests
+import db
 
 TOKEN = os.environ['TELEGRAM_TOKEN']
 BASE_URL = "https://api.telegram.org/bot{}".format(TOKEN)
@@ -47,11 +48,11 @@ def start(chat_id, first_name):
 def setStart(passenger_id, origin):
     response = "Your origin has been recorded! Please set your destination using /setDestination <name>"
     data = {"text": response.encode("utf8"), "chat_id": passenger_id}
-
+    db.add_passenger_origin(passenger_id, origin)
     requests.post(url, data)
 
 def setDestination(passenger_id, destination):
     response = "You are set! You can list your defined locations using /list!"
-
     data = {"text": response.encode("utf8"), "chat_id": passenger_id}
+    db.update_passenger_destination(passenger_id, destination)
     requests.post(url, data)
