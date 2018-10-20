@@ -20,6 +20,7 @@ vendored/
 pip-selfcheck.json
 pyvenv.cfg
 __pycache__/
+share/
 
 # Serverless directories
 .serverless

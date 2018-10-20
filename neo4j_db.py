@@ -17,7 +17,7 @@ def get_error_list(path):
                 'destination': edge.end_node['name']
             }
             error_list.append(info)
-    
+
     return error_list
 
 def insert_error(origin, destination, message):
@@ -35,6 +35,3 @@ def is_contained(origin, destination, problem_origin, problem_destination):
     path = get_shortest_path(origin, destination)
     stations = [node['name'] for node in path.nodes]
     return problem_origin in stations and problem_destination in stations
-
-
-print(is_contained('Palau Reial', 'Rocafort', 'Universitat', 'Catalunya'))
