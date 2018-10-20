@@ -1,4 +1,4 @@
-from py2neo import Graph, NodeMatcher, RelationshipMatcher
+from py2neo import Graph, NodeMatcher, RelationshipMatcher, Schema
 import os
 
 def get_shortest_path(origin, dest):
@@ -35,3 +35,19 @@ def is_contained(origin, destination, problem_origin, problem_destination):
     path = get_shortest_path(origin, destination)
     stations = [node['name'] for node in path.nodes]
     return problem_origin in stations and problem_destination in stations
+
+def list_lines():
+    graph = Graph(host=os.environ['NEO4J_URL'], port=os.environ['NEO4J_PORT'], user=os.environ['NEO4J_USERNAME'], password=os.environ['NEO4J_TOKEN'], secure=True)
+    return list(Schema(graph).relationship_types)
+
+def list_stations_by_line(line):
+    graph = Graph(host=os.environ['NEO4J_URL'], port=os.environ['NEO4J_PORT'], user=os.environ['NEO4J_USERNAME'], password=os.environ['NEO4J_TOKEN'], secure=True)
+    query = 'MATCH(s:Station)-[:{}]->() RETURN s'.format(line)
+    station_list = [result['s']['name'] for result in graph.run(query).data()]
+    return station_list
+
+def list_stations():
+    graph = Graph(host=os.environ['NEO4J_URL'], port=os.environ['NEO4J_PORT'], user=os.environ['NEO4J_USERNAME'], password=os.environ['NEO4J_TOKEN'], secure=True)
+    query = 'MATCH(s) RETURN s'
+    station_list = [result['s']['name'] for result in graph.run(query).data()]
+    return station_list
