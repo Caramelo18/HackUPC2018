@@ -4,7 +4,7 @@ import os
 def get_shortest_path(origin, dest):
     graph = Graph(host=os.environ['NEO4J_URL'], port=os.environ['NEO4J_PORT'], user=os.environ['NEO4J_USERNAME'], password=os.environ['NEO4J_TOKEN'], secure=True)
     query = 'MATCH (ms:Station{{name:\'{}\'}}),(cs:Station{{name:\'{}\'}}), path = shortestPath((ms)-[*]-(cs)) RETURN path'.format(origin, dest)
-
+    print(graph.run(query).data())
     return graph.run(query).data()[0]['path']
 
 def get_error_list(path):
@@ -27,9 +27,8 @@ def insert_error(origin, destination, message):
 
 def clear_error(origin, destination):
     graph = Graph(host=os.environ['NEO4J_URL'], port=os.environ['NEO4J_PORT'], user=os.environ['NEO4J_USERNAME'], password=os.environ['NEO4J_TOKEN'], secure=True)
-    query = 'MATCH (ms:Station{{name:\'{}\'}}),(cs:Station{{name:\'{}\'}}), (ms)-[e]-(cs) DELETE e'.format(origin, destination, message)
+    query = 'MATCH (ms:Station{{name:\'{}\'}}),(cs:Station{{name:\'{}\'}}), (ms)-[e]-(cs) REMOVE e.error'.format(origin, destination, message)
     graph.run(query)
-
 
 def is_station(name):
     graph = Graph(host=os.environ['NEO4J_URL'], port=os.environ['NEO4J_PORT'], user=os.environ['NEO4J_USERNAME'], password=os.environ['NEO4J_TOKEN'], secure=True)
