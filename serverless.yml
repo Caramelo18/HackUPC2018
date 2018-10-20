@@ -66,6 +66,22 @@ functions:
                 method: post
                 cors: true
 
+resources:
+  Resources:
+    NewResource:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            TableName: PassengerTable
+            AttributeDefinitions:
+                - AttributeName: userId
+                  AttributeType: S
+            KeySchema:
+                - AttributeName: userId
+                  KeyType: HASH
+            ProvisionedThroughput:
+                ReadCapacityUnits: 1
+                WriteCapacityUnits: 1
+
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
