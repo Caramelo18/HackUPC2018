@@ -51,3 +51,17 @@ def list_stations():
     query = 'MATCH(s) RETURN s'
     station_list = [result['s']['name'] for result in graph.run(query).data()]
     return station_list
+
+def list_issues():
+    graph = Graph(host=os.environ['NEO4J_URL'], port=os.environ['NEO4J_PORT'], user=os.environ['NEO4J_USERNAME'], password=os.environ['NEO4J_TOKEN'], secure=True)
+    query = 'MATCH (ms:Station), (cs:Station), (ms)-[e]->(cs) WHERE EXISTS(e.error) RETURN ms, e, cs'
+    error_list = []
+    for error in graph.run(query).data():
+        info = {
+            'message': error['e']['error'],
+            'origin': error['ms']['name'],
+            'destination': error['cs']['name']
+        }
+        error_list.append(info)
+
+    return error_list
