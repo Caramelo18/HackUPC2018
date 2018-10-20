@@ -72,7 +72,9 @@ def start(chat_id, first_name):
 def set_origin(passenger_id, origin):
     curr_origin, destination = db.get_user_info(passenger_id)
 
-    if origin is not None and destination is not None:
+    if not neo4j_db.is_station(origin):
+        response = "The station {} does not exist. Please insert a valid one.".format(origin)
+    elif origin is not None and destination is not None:
         response = "You are set! You can list your defined locations using /list!"
     elif destination is None:
         response = "Your origin has been recorded! Please set your destination using /setDestination <name>"
@@ -84,7 +86,9 @@ def set_origin(passenger_id, origin):
 def set_destination(passenger_id, destination):
     origin, curr_destination = db.get_user_info(passenger_id)
 
-    if origin is not None and destination is not None:
+    if not neo4j_db.is_station(destination):
+        response = "The station {} does not exist. Please insert a valid one.".format(destination)
+    elif origin is not None and destination is not None:
         response = "You are set! You can list your defined locations using /list!"
     elif origin is None:
         response = "Your destination has been recorded! Please set your origin using /setOrigin <name>"
