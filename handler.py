@@ -226,3 +226,24 @@ def list_issues(passenger_id):
     
     data = {"text": response.encode("utf8"), "chat_id": passenger_id}
     requests.post(url, data)
+
+def remove_commute(passenger_id):
+    db.erase_commute(passenger_id)
+    response = 'Successfully erased your commute settings.'
+    data = {"text": response.encode("utf8"), "chat_id": passenger_id}
+    requests.post(url, data)
+
+def help(passenger_id):
+    response = 'Type /listall to list every station in the work\n\
+                Type /list to list the lines in the network.\n\
+                Type /list <line_name> to list every station in that line.\n\
+                Type /setOrigin <station_name> to set the starting point of your regular commute.\n\
+                Type /setDestination <station_name> to set the destination of your regular commute.\n\
+                Type /commute to show the information on your regular commute.\n\
+                Type /status to get information on the status and issues on your regular commute.\n\
+                Type /status <origin_station_name>/<destination_station_name> to get information on the status and issues of a specific trip.\n\
+                Type /listissues to list every issue in the network.\n\
+                Type /clearCommute to clear information regarding your regular commute.\n\'
+    data = {"text": response.encode("utf8"), "chat_id": passenger_id}
+    requests.post(url, data)
+

@@ -70,3 +70,5 @@ def list_issues():
         error_list.append(info)
 
     return error_list
+
+get_shortest_path('Urquinaona', 'Palau Reial')
