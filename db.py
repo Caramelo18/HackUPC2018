@@ -26,7 +26,7 @@ def add_passenger_destination(userId, destination):
 
 def update_passenger_origin(userId, origin):
     table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
-    
+
     result = table.update_item(
         Key={
             'userId': str(userId)
@@ -38,7 +38,7 @@ def update_passenger_origin(userId, origin):
 
 def update_passenger_destination(userId, destination):
     table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
-        
+
     result = table.update_item(
         Key={
             'userId': str(userId)
@@ -47,3 +47,24 @@ def update_passenger_destination(userId, destination):
         ExpressionAttributeValues={
             ":d": destination
         })
+
+def get_user_info(userId):
+    table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
+
+    result = table.get_item(
+        Key={
+            'userId': str(userId)
+        }
+    )
+
+    if 'Item' not in result:
+        return None, None
+
+    result = result['Item']
+
+    if 'origin' not in result:
+        return None, result['destination']
+    elif 'destination' not in result:
+        return result['origin'], None
+
+    return result['origin'], result['destination']

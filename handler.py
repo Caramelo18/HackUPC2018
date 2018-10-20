@@ -22,12 +22,18 @@ def hello(event, context):
 
         response = "Please /start, {}".format(first_name)
 
+        #print(payload)
+
         if "start" in message:
             start(chat_id, first_name)
-        elif "setStart" in message:
-            setStart(chat_id, "Origin")
+        elif "setOrigin" in message:
+            origin = message.split("/setOrigin", 1)[1]
+            set_origin(chat_id, origin)
         elif "setDestination" in message:
-            setDestination(chat_id, "Destination")
+            destination = message.split("/setDestination", 1)[1]
+            set_destination(chat_id, destination)
+        elif "list" in message:
+            get_user_list(chat_id)
         else:
             data = {"text": response.encode("utf8"), "chat_id": chat_id}
             requests.post(url, data)
@@ -40,19 +46,47 @@ def hello(event, context):
 
 
 def start(chat_id, first_name):
-    response = " Hello {}! \n I am CommuBot and I am here to help you with your commute. To list the stations type /list. \n\n To set your starting point type /setStart <name>. \n\n To set your destination type /setDestination <name>".format(first_name)
+    response = " Hello {}! \n I am CommuBot and I am here to help you with your commute. To list the stations type /list. \n\n To set your starting point type /setOrigin <name>. \n\n To set your destination type /setDestination <name>".format(first_name)
     data = {"text": response.encode("utf8"), "chat_id": chat_id}
 
     requests.post(url, data)
 
-def setStart(passenger_id, origin):
-    response = "Your origin has been recorded! Please set your destination using /setDestination <name>"
+def set_origin(passenger_id, origin):
+    curr_origin, destination = db.get_user_info(passenger_id)
+
+    if origin is not None and destination is not None:
+        response = "You are set! You can list your defined locations using /list!"
+    elif destination is None:
+        response = "Your origin has been recorded! Please set your destination using /setDestination <name>"
+
     data = {"text": response.encode("utf8"), "chat_id": passenger_id}
-    db.add_passenger_origin(passenger_id, origin)
+    db.update_passenger_origin(passenger_id, origin)
     requests.post(url, data)
 
-def setDestination(passenger_id, destination):
-    response = "You are set! You can list your defined locations using /list!"
+def set_destination(passenger_id, destination):
+    origin, curr_destination = db.get_user_info(passenger_id)
+
+    if origin is not None and destination is not None:
+        response = "You are set! You can list your defined locations using /list!"
+    elif origin is None:
+        response = "Your destination has been recorded! Please set your origin using /setOrigin <name>"
+
     data = {"text": response.encode("utf8"), "chat_id": passenger_id}
     db.update_passenger_destination(passenger_id, destination)
+    requests.post(url, data)
+
+def get_user_list(passenger_id):
+    origin, destination = db.get_user_info(passenger_id)
+    response = ""
+
+    if origin is not None and destination is not None:
+        response += "Your current origin is {} and your destination is {}".format(origin, destination)
+    elif origin is not None:
+        response += "Your current origin is {}. However, you haven't defined a destination.".format(origin)
+    elif destination is not None:
+        response += "Your current destination is {}. However, you haven't defined an origin.".format(destination)
+    else:
+        response += "You haven't defined neither an origin nor a destination. Please specify one"
+
+    data = {"text": response.encode("utf8"), "chat_id": passenger_id}
     requests.post(url, data)
