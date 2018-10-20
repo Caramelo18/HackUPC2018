@@ -68,3 +68,12 @@ def get_user_info(userId):
         return result['origin'], None
 
     return result['origin'], result['destination']
+
+def erase_commute(userId):
+    table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
+
+    table.delete_item(
+        Key={
+            'userId': userId
+        }
+)
