@@ -77,3 +77,10 @@ def erase_commute(userId):
             'userId': userId
         }
     )
+
+def get_all_users():
+    table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
+
+    result = table.scan()
+
+    return result['Items']
