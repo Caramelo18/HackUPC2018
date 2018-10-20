@@ -1,4 +1,4 @@
-from py2neo import Graph, NodeMatcher
+from py2neo import Graph, NodeMatcher, RelationshipMatcher
 import os
 
 def get_shortest_path(origin, dest):
@@ -30,3 +30,11 @@ def is_station(name):
     matcher = NodeMatcher(graph)
 
     return len(matcher.match('Station', name=name)) > 0
+
+def is_contained(origin, destination, problem_origin, problem_destination):
+    path = get_shortest_path(origin, destination)
+    stations = [node['name'] for node in path.nodes]
+    return problem_origin in stations and problem_destination in stations
+
+
+print(is_contained('Palau Reial', 'Rocafort', 'Universitat', 'Catalunya'))
