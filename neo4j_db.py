@@ -1,10 +1,12 @@
 from py2neo import Graph, NodeMatcher, RelationshipMatcher, Schema
+from neo4j import GraphDatabase
 import os
+
+uri = 'bolt://' + os.environ['NEO4J_URL'] + ':' + os.environ['NEO4J_PORT']
 
 def get_shortest_path(origin, dest):
     graph = Graph(host=os.environ['NEO4J_URL'], port=os.environ['NEO4J_PORT'], user=os.environ['NEO4J_USERNAME'], password=os.environ['NEO4J_TOKEN'], secure=True)
     query = 'MATCH (ms:Station{{name:\'{}\'}}),(cs:Station{{name:\'{}\'}}), path = shortestPath((ms)-[*]-(cs)) RETURN path'.format(origin, dest)
-    print(graph.run(query).data())
     return graph.run(query).data()[0]['path']
 
 def get_error_list(path):
@@ -22,12 +24,12 @@ def get_error_list(path):
 
 def insert_error(origin, destination, message):
     graph = Graph(host=os.environ['NEO4J_URL'], port=os.environ['NEO4J_PORT'], user=os.environ['NEO4J_USERNAME'], password=os.environ['NEO4J_TOKEN'], secure=True)
-    query = 'MATCH (ms:Station{{name:\'{}\'}}),(cs:Station{{name:\'{}\'}}), (ms)-[e]-(cs) SET e.error=\'{}\''.format(origin, destination, message)
+    query = 'MATCH (ms:Station{{name:\'{}\'}}),(cs:Station{{name:\'{}\'}}), (ms)-[e]-(cs) SET e.error=\'{}\' RETURN e'.format(origin, destination, message)
     graph.run(query)
 
 def clear_error(origin, destination):
     graph = Graph(host=os.environ['NEO4J_URL'], port=os.environ['NEO4J_PORT'], user=os.environ['NEO4J_USERNAME'], password=os.environ['NEO4J_TOKEN'], secure=True)
-    query = 'MATCH (ms:Station{{name:\'{}\'}}),(cs:Station{{name:\'{}\'}}), (ms)-[e]-(cs) REMOVE e.error'.format(origin, destination)
+    query = 'MATCH (ms:Station{{name:\'{}\'}}),(cs:Station{{name:\'{}\'}}), (ms)-[e]-(cs) REMOVE e.error RETURN e'.format(origin, destination)
     print(origin, destination)
     print(query)
     graph.run(query)
