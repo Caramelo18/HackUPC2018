@@ -23,8 +23,6 @@ def hello(event, context):
 
         response = "Please /start, {}".format(first_name)
 
-        #print(payload)
-
         if "start" in message:
             start(chat_id, first_name)
         elif "setOrigin" in message:
@@ -36,7 +34,13 @@ def hello(event, context):
         elif "list" in message:
             get_user_list(chat_id)
         elif "status" in message:
-            get_status(chat_id)
+            if message == "/status":
+                get_status_by_id(chat_id)
+                return {"statusCode": 200}
+            params = message.split(" ", 1)
+            params = params[1].split("/", 1)
+            if len(params) is 2:
+                get_status(chat_id, params[0], params[1])
         else:
             data = {"text": response.encode("utf8"), "chat_id": chat_id}
             requests.post(url, data)
@@ -113,7 +117,7 @@ def get_user_list(passenger_id):
     data = {"text": response.encode("utf8"), "chat_id": passenger_id}
     requests.post(url, data)
 
-def get_status(passenger_id):
+def get_status_by_id(passenger_id):
     origin, destination = db.get_user_info(passenger_id)
     response = ""
 
@@ -121,7 +125,7 @@ def get_status(passenger_id):
         response += "Please set both origin and destination"
         data = {"text": response.encode("utf8"), "chat_id": passenger_id}
         requests.post(url, data)
-        return
+        return {"statusCode": 200}
 
 
     path = neo4j_db.get_shortest_path(origin, destination)
@@ -133,6 +137,37 @@ def get_status(passenger_id):
         response += "Unfortunately there is a problem on your regular commute.\n"
     elif len(error_list) == 2:
         response += "Damn, your commute has more than one problem!\n"
+
+    for problem in error_list:
+        origin = problem['origin']
+        destination = problem['destination']
+        message = problem['message']
+        issue = "There is an issue between {} and {}: {}\n".format(origin, destination, message)
+        response += issue
+
+
+    data = {"text": response.encode("utf8"), "chat_id": passenger_id}
+    requests.post(url, data)
+
+def get_status(passenger_id, origin, destination):
+    response = ""
+
+    if not neo4j_db.is_station(origin) or not neo4j_db.is_station(destination):
+        response += "Please set both valid origin and destination"
+        data = {"text": response.encode("utf8"), "chat_id": passenger_id}
+        requests.post(url, data)
+        return {"statusCode": 200}
+
+
+    path = neo4j_db.get_shortest_path(origin, destination)
+    error_list = neo4j_db.get_error_list(path)
+
+    if len(error_list) == 0:
+        response += "This commute is running smoothly. Enjoy!"
+    elif len(error_list) == 1:
+        response += "Unfortunately there is a problem on this trip.\n"
+    elif len(error_list) == 2:
+        response += "There is more than one problem on this ride.\n"
 
     for problem in error_list:
         origin = problem['origin']
