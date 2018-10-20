@@ -15,6 +15,12 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+bin/
+vendored/
+pip-selfcheck.json
+pyvenv.cfg
 
 # Serverless directories
 .serverless
+
+.env

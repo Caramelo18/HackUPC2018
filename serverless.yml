@@ -11,15 +11,18 @@
 #
 # Happy Coding!
 
-service: aws-python3 # NOTE: update this with your service name
+service: commubot # NOTE: update this with your service name
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
 # frameworkVersion: "=X.X.X"
 
 provider:
-  name: aws
-  runtime: python3.6
+    name: aws
+    runtime: python3.6
+    region: eu-west-1
+    environment:
+    TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
 
 # you can overwrite defaults here
 #  stage: dev
@@ -55,8 +58,13 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  hello:
-    handler: handler.hello
+    post:
+        handler: handler.hello
+        events:
+            - http:
+                path: test
+                method: post
+                cors: true
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
