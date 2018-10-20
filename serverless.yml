@@ -65,7 +65,13 @@ functions:
                 path: test
                 method: post
                 cors: true
-
+    update:
+        handler: handler.update
+        events:
+            - http:
+                path: update
+                method: post
+                cors: true
 resources:
   Resources:
     NewResource:

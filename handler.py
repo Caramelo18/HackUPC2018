@@ -44,6 +44,21 @@ def hello(event, context):
 
     return {"statusCode": 200}
 
+def update(event, context):
+    try:
+        #data = json.loads(event["body"])
+        #message = str(data["message"]["text"])
+
+        response = "Just an update"
+
+        data = {"text": response.encode("utf8"), "chat_id": 787004625} #TODO: change this
+        requests.post(url, data)
+
+    except Exception as e:
+        print(e)
+
+    return {"statusCode": 200}
+
 
 def start(chat_id, first_name):
     response = " Hello {}! \n I am CommuBot and I am here to help you with your commute. To list the stations type /list. \n\n To set your starting point type /setOrigin <name>. \n\n To set your destination type /setDestination <name>".format(first_name)
