@@ -208,9 +208,10 @@ def get_status_by_id(passenger_id):
         requests.post(url, data)
         return {"statusCode": 200}
 
-
-    path = neo4j_db.get_shortest_path(origin, destination)
-    error_list = neo4j_db.get_error_list(path)
+    error_list = neo4j_db.get_status_error_list(origin, destination)
+    error_list = neo4j_db.get_status_error_list(origin, destination)
+    #path = neo4j_db.get_shortest_path(origin, destination)
+    #error_list = neo4j_db.get_error_list(path)
 
     if len(error_list) == 0:
         response += "Your commute is running smoothly. Enjoy!"
@@ -315,7 +316,7 @@ def help(passenger_id):
                 Type /status to get information on the status and issues on your regular commute.\n\
                 Type /status <origin_station_name>/<destination_station_name> to get information on the status and issues of a specific trip.\n\
                 Type /listissues to list every issue in the network.\n\
-                Type /clearCommute to clear information regarding your regular commute.\n\'
+                Type /clearCommute to clear information regarding your regular commute.\n'
     data = {"text": response.encode("utf8"), "chat_id": passenger_id}
     requests.post(url, data)
 
