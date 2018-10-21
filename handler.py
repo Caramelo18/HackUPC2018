@@ -33,6 +33,8 @@ def hello(event, context):
             set_destination(chat_id, destination)
         elif message.startswith("/commute"):
             get_user_list(chat_id)
+        elif message.startswith("/removeCommute"):
+            remove_commute(passenger_id)
         elif message.startswith("/listall"):
             list_all_stations(chat_id)
         elif message.startswith("/listissues"):
@@ -52,8 +54,7 @@ def hello(event, context):
             if len(params) is 2:
                 get_status(chat_id, params[0], params[1])
         else:
-            data = {"text": response.encode("utf8"), "chat_id": chat_id}
-            requests.post(url, data)
+           help(chat_id)
 
     except Exception as e:
         print(e)
