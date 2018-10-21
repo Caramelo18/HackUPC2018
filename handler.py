@@ -34,7 +34,7 @@ def hello(event, context):
         elif message.startswith("/commute"):
             get_user_list(chat_id)
         elif message.startswith("/removeCommute"):
-            remove_commute(passenger_id)
+            remove_commute(chat_id)
         elif message.startswith("/listall"):
             list_all_stations(chat_id)
         elif message.startswith("/listissues"):
@@ -317,7 +317,6 @@ def help(passenger_id):
                 Type /status to get information on the status and issues on your regular commute.\n\
                 Type /status <origin_station_name>/<destination_station_name> to get information on the status and issues of a specific trip.\n\
                 Type /listissues to list every issue in the network.\n\
-                Type /clearCommute to clear information regarding your regular commute.\n'
+                Type /removeCommute to clear information regarding your regular commute.\n'
     data = {"text": response.encode("utf8"), "chat_id": passenger_id}
     requests.post(url, data)
-

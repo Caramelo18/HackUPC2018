@@ -74,7 +74,7 @@ def erase_commute(userId):
 
     table.delete_item(
         Key={
-            'userId': userId
+            'userId': str(userId)
         }
     )
 
